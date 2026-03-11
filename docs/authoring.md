@@ -7,8 +7,6 @@
 > Upstream engine: https://github.com/nicholaskarlson/storygame-engine
 
 
-This guide is for `storygame-engine` (CLI: `btg`).
-
 You can build a complete story game by editing one file: **`scenes.yaml`**.
 
 A story is a set of **scenes**. Each scene has:
