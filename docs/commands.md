@@ -15,8 +15,12 @@
 
 ## Play
 
+> Note: `btg play` prints the current scene text, including terminal scenes.
+
+
 - `btg play` — play the default story
 - `btg play --story NAME` — play `stories/NAME/scenes.yaml`
+- `btg play PATH` — play a story YAML file (positional, same as `--scenes PATH`)
 - `btg play --scenes PATH` — play a story YAML file
 - `btg play --pack PATH` — play a story pack zip
 - `btg play --start SCENE_ID` — override start scene
@@ -30,12 +34,14 @@
 ## Lint
 
 - `btg lint --strict --story NAME` — validate `stories/NAME/scenes.yaml`
+- `btg lint --strict PATH` — validate authoring errors (positional, same as `--scenes PATH`)
 - `btg lint --strict --scenes PATH` — validate authoring errors
 - `btg lint --pack PATH` — validate a pack
 
 ## Replay
 
 - `btg replay --script PATH --story NAME`
+- `btg replay --script PATH PATH` — deterministic replay (positional scenes path, same as `--scenes PATH`)
 - `btg replay --script PATH --scenes PATH` — deterministic replay from a script file
 
 ## Packing
