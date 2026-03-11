@@ -8,8 +8,6 @@
 > Recommended for this repo: pack and verify the anchor story before sharing: `btg pack-story stories/the-night-key --out dist/the-night-key.pack.zip` then `btg verify-pack dist/the-night-key.pack.zip`.
 
 
-This guide is for `storygame-engine` (CLI: `btg`).
-
 A **story pack** is a deterministic zip file that contains:
 
 - `scenes.yaml` (your story)
