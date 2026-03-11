@@ -44,3 +44,6 @@ This is designed for “proof-first” sharing: deterministic outputs and stable
 ## Multi-file stories
 
 If your story uses `includes:` in `scenes.yaml`, keep the included files **inside the same story folder**. `btg pack-story` includes all files under the story directory, and `btg verify-pack` checks that all `includes:` entries are present in the pack payload.
+
+
+> Tip: Packs now support `includes:` too. If `scenes.yaml` declares `includes:`, `btg play --pack`, `btg lint --pack`, and `btg replay --pack` will merge the included files deterministically before running.
