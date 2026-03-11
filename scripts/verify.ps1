@@ -13,7 +13,12 @@ Invoke-Step ".\.venv\Scripts\python -m pip install -e '.[dev]'"
 Invoke-Step ".\.venv\Scripts\ruff format --check ."
 Invoke-Step ".\.venv\Scripts\ruff check ."
 Invoke-Step ".\.venv\Scripts\mypy src\btg"
-Invoke-Step ".\.venv\Scripts\btg lint --strict"
+
+# Book repo default: verify The Night Key stays valid.
+Invoke-Step ".\.venv\Scripts\btg lint --strict --story the-night-key"
+# Keep starter as a reference story (optional, but helpful).
+Invoke-Step ".\.venv\Scripts\btg lint --strict --story starter"
+
 Invoke-Step ".\.venv\Scripts\pytest -q"
 Invoke-Step ".\.venv\Scripts\python scripts\build_packs.py"
 

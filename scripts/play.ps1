@@ -6,7 +6,7 @@ $ErrorActionPreference = "Stop"
 #   powershell -NoProfile -ExecutionPolicy Bypass -File scripts/play.ps1 --story starter
 #
 # Any args are forwarded to: btg play <args>
-# If no args are provided, defaults to: btg play --story starter
+# If no args are provided, defaults to: btg play --story the-night-key
 
 if (!(Test-Path ".\.venv")) {
   python -m venv .venv
@@ -27,7 +27,7 @@ if ($forward.Count -gt 0 -and $forward[0] -eq "--") {
 }
 
 if ($forward.Count -eq 0) {
-  & $btg play --story starter
+  & $btg play --story the-night-key
 } else {
   & $btg play @forward
 }
