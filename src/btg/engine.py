@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -45,6 +46,13 @@ _STATE_FIELDS: set[str] = {"day", "energy", "support", "guilt", "warmth"}
 
 
 @dataclass(frozen=True)
+class StateGate:
+    field: str
+    op: str
+    value: int
+
+
+@dataclass(frozen=True)
 class Choice:
     label: str
     goto: str
@@ -53,6 +61,8 @@ class Choice:
     forbids_flags: tuple[str, ...] = ()
     sets_flags: tuple[str, ...] = ()
     clears_flags: tuple[str, ...] = ()
+    requires_state: tuple[StateGate, ...] = ()
+    forbids_state: tuple[StateGate, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -86,6 +96,70 @@ def _as_str_list(value: Any, *, field: str, ctx: str) -> list[str]:
             continue
         out.append(s)
     return out
+
+
+_GATE_RE = re.compile(r"^\s*(>=|<=|==|!=|>|<)\s*(-?\d+)\s*$")
+
+
+_OPS: dict[str, Callable[[int, int], bool]] = {
+    ">=": lambda a, b: a >= b,
+    "<=": lambda a, b: a <= b,
+    ">": lambda a, b: a > b,
+    "<": lambda a, b: a < b,
+    "==": lambda a, b: a == b,
+    "!=": lambda a, b: a != b,
+}
+
+
+def _parse_state_gates(value: Any, *, field: str, ctx: str) -> tuple[StateGate, ...]:
+    """Parse mapping of state_field -> comparison string.
+
+    Example:
+      requires_state: { energy: ">= 3", guilt: "<= 4" }
+    """
+    if value is None:
+        return ()
+    if not isinstance(value, dict):
+        raise ValueError(f"{ctx}: '{field}' must be a mapping of state_field -> condition")
+
+    gates: list[StateGate] = []
+    for k, raw in value.items():
+        if not isinstance(k, str):
+            raise ValueError(f"{ctx}: '{field}' keys must be strings (got {type(k).__name__})")
+        state_field = k.strip()
+        if state_field not in _STATE_FIELDS:
+            raise ValueError(f"{ctx}: '{field}' unknown state field '{state_field}'")
+
+        if isinstance(raw, int):
+            op = "=="
+            num = raw
+        elif isinstance(raw, str):
+            m = _GATE_RE.match(raw)
+            if not m:
+                raise ValueError(
+                    f"{ctx}: '{field}.{state_field}' must look like '>= 3' (got {raw!r})"
+                )
+            op = m.group(1)
+            num = int(m.group(2))
+        else:
+            raise ValueError(
+                f"{ctx}: '{field}.{state_field}' must be an int or comparison string "
+                f"(got {type(raw).__name__})"
+            )
+
+        gates.append(StateGate(field=state_field, op=op, value=num))
+
+    # Deterministic ordering independent of YAML map ordering.
+    gates.sort(key=lambda g: (g.field, g.op, g.value))
+    return tuple(gates)
+
+
+def _state_gate_true(g: StateGate, state: GameState) -> bool:
+    actual = getattr(state, g.field)
+    fn = _OPS.get(g.op)
+    if fn is None:
+        raise ValueError(f"Unknown operator: {g.op}")
+    return fn(int(actual), int(g.value))
 
 
 def _parse_delta(value: Any, *, ctx: str) -> dict[str, int]:
@@ -174,6 +248,12 @@ def load_story_text(text: str, source: str | None = None) -> Story:
             forbids_flags = tuple(
                 _as_str_list(c.get("forbids_flags", []), field="forbids_flags", ctx=cctx)
             )
+            requires_state = _parse_state_gates(
+                c.get("requires_state", None), field="requires_state", ctx=cctx
+            )
+            forbids_state = _parse_state_gates(
+                c.get("forbids_state", None), field="forbids_state", ctx=cctx
+            )
             _raw_sets = c.get("sets_flags", None)
             if _raw_sets is None:
                 _raw_sets = c.get("set_flags", [])
@@ -192,6 +272,8 @@ def load_story_text(text: str, source: str | None = None) -> Story:
                     forbids_flags=forbids_flags,
                     sets_flags=sets_flags,
                     clears_flags=clears_flags,
+                    requires_state=requires_state,
+                    forbids_state=forbids_state,
                 )
             )
 
@@ -265,7 +347,19 @@ def _apply_delta(state: GameState, delta: dict[str, int]) -> GameState:
 
 
 def _choice_available(choice: Choice, state: GameState) -> bool:
-    return state.has_flags(choice.requires_flags) and not state.any_flags(choice.forbids_flags)
+    if not state.has_flags(choice.requires_flags):
+        return False
+    if state.any_flags(choice.forbids_flags):
+        return False
+
+    if choice.requires_state:
+        if not all(_state_gate_true(g, state) for g in choice.requires_state):
+            return False
+    if choice.forbids_state:
+        if any(_state_gate_true(g, state) for g in choice.forbids_state):
+            return False
+
+    return True
 
 
 def _filter_choices(scene: Scene, state: GameState) -> tuple[Choice, ...]:
