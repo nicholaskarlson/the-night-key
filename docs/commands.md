@@ -1,7 +1,14 @@
 # Command reference
 
+> **The Night Key book repo note**
+>
+> This repository is the companion codebase for the book *The Night Key*. It includes the `btg` interactive-fiction engine (MIT) **plus** the anchor story under `stories/the-night-key/`.
+>
+> Upstream engine: https://github.com/nicholaskarlson/storygame-engine
+> Quickstart (most readers): `btg play --story the-night-key` and `btg lint --strict --story the-night-key`.
+
+
 This guide is for `storygame-engine` (CLI: `btg`).
-Website: storygame.ca
 
 ## Story discovery
 
