@@ -1,20 +1,27 @@
-# The Night Key (anchor story)
+# The Night Key (story)
 
-This folder contains the anchor interactive-fiction story for the book *The Night Key*.
+This folder contains the build-along story used in the book project.
 
-## Quick play
+## Quick play (from repo root)
 
-From the repo root:
+- Play:
+  - `btg play --story the-night-key`
+- Lint:
+  - `btg lint --strict --story the-night-key`
 
-```bash
-btg play --story the-night-key
-```
+## What this story demonstrates
 
-## File layout (multi-file)
+This story intentionally uses new engine features so readers see them “in the wild”:
 
-This story uses **multi-file scenes** via `includes:`:
+- **Multi-file stories via `includes:`**
+  - `stories/the-night-key/scenes.yaml` includes `scenes/act*.yaml` (deterministic glob order).
+- **Numeric gating**
+  - Choices gated by `requires_state` / `forbids_state` (e.g., energy/warmth thresholds).
+- **Tiny templating**
+  - Scene text can render `{energy}`, `{warmth}`, `{day}`, `{flags}` for subtle narrative feedback.
 
-- `scenes.yaml` — entrypoint (metadata + flags + start + includes list)
-- `scenes/act1.yaml` — the current scene content (Act 1 seed)
+## Structure
 
-Splitting scenes keeps the project approachable as it grows. The engine merges included files deterministically.
+- `scenes.yaml` — metadata + `includes:`
+- `scenes/act1.yaml` — lobby/hallway setup (seed)
+- `scenes/act2.yaml` — first deeper turn (gating + templating + a real ending)

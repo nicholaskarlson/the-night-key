@@ -1,0 +1,136 @@
+scenes:
+  - id: basement_landing
+    text: >
+      The stairwell closes behind you with a soft click. The air is colder here,
+      and the concrete holds the day’s damp like a memory. You count what’s left
+      of you—{energy}—and wish the number meant something more than “keep moving.”
+
+      Halfway down, a second door waits. Someone has rolled fresh paint across it
+      like a hurried apology.
+    choices:
+      - label: "Rush to the painted door."
+        goto: painted_door
+        delta: { energy: -3 }
+      - label: "Move carefully, counting steps."
+        goto: painted_door
+        delta: { energy: -1 }
+      - label: "Pause and breathe warmth into your hands."
+        goto: basement_warmth
+        delta: { warmth: +2 }
+      - label: "Go back upstairs."
+        goto: hallway_listen
+
+  - id: basement_warmth
+    text: >
+      You press your palms together and breathe. The small act feels ridiculous,
+      but it gives you back something you didn’t know you were losing.
+
+      Warmth: {warmth}.
+    choices:
+      - label: "Try the painted door now."
+        goto: painted_door
+        delta: { energy: -1 }
+      - label: "Go back upstairs."
+        goto: hallway_listen
+
+  - id: painted_door
+    text: >
+      Up close, the paint is still tacky. It smells like a cover story.
+      The knob is worn smooth from hands that pretended this was routine.
+    choices:
+      - label: "Shoulder the door (if you have the strength)."
+        goto: room_404
+        requires_state: { energy: ">= 3" }
+        delta: { energy: -2 }
+        sets_flags: [room_404_opened]
+      - label: "Use the master key."
+        goto: room_404
+        requires_flags: [found_master_key]
+        sets_flags: [room_404_opened]
+      - label: "Turn back."
+        goto: basement_landing
+
+  - id: room_404
+    text: >
+      The room beyond is not a guest room. It is a place where the building keeps
+      what it doesn’t want seen: spare linens, a cracked mirror, and a chair that
+      has been dragged to the center as if someone waited there for hours.
+
+      On the chair is a folded message, weighed down with a tarnished room key.
+
+      You flip to the page in your notebook where you list what you’ve confirmed
+      tonight: {flags}.
+    choices:
+      - label: "Read the folded message."
+        goto: read_message
+        sets_flags: [found_message]
+      - label: "Pocket it for later."
+        goto: pocket_message
+        sets_flags: [found_message]
+      - label: "Leave quietly and go back upstairs."
+        goto: hallway_listen
+
+  - id: pocket_message
+    text: >
+      You slide the paper into your pocket and feel its edges press against your
+      skin—an insistence you can’t ignore forever.
+    choices:
+      - label: "All right. Read it now."
+        goto: read_message
+      - label: "Go back upstairs first."
+        goto: hallway_listen
+
+  - id: read_message
+    text: >
+      The handwriting is careful, almost polite.
+
+      “If you find this, I did not vanish. I left because the hotel makes vanishing
+      convenient. Room 404 is not a room. It is where they put the story when they
+      need it to stop.”
+
+      The note ends with a time, a name you don’t recognize, and one sentence that
+      lands like a weight: “Please don’t let them call it nothing.”
+    choices:
+      - label: "Call the police from the lobby phone."
+        goto: call_police_now
+        sets_flags: [called_police]
+      - label: "Tell the manager what you found (only if you can keep your voice kind)."
+        goto: confront_manager
+        requires_state: { warmth: ">= 3" }
+      - label: "Say nothing yet. Go back upstairs and think."
+        goto: hallway_listen
+
+  - id: confront_manager
+    text: >
+      The manager is in his office when you find him, coat still on, as if he never
+      intends to stay long enough to be responsible for the night.
+
+      You place the tarnished key on his desk. You do not raise your voice. You do
+      not give him the drama he expects.
+
+      For a moment he looks relieved. Then he looks angry—because relief means you
+      could have chosen otherwise.
+    choices:
+      - label: "Insist on doing the right thing anyway."
+        goto: call_police_now
+        sets_flags: [called_police]
+      - label: "Accept his version of events and step away."
+        goto: end_shift
+
+  - id: call_police_now
+    terminal: true
+    text: >
+      You pick up the lobby phone and dial anyway.
+
+      The dispatcher asks for details. You give them what you have: the missing guest,
+      the painted door, the message, the key that shouldn’t exist. Outside, the rain
+      keeps moving, indifferent as always, but inside the lobby something changes.
+
+      You are not solving everything tonight. You are refusing the convenient story.
+      You will stay until they arrive, even if you have only {energy} left to give.
+
+      Whatever this place is, it does not get to make people disappear into “nothing.”
+
+      You hang up and wait.
+
+      End.
