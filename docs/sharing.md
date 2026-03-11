@@ -8,6 +8,7 @@
 > Recommended for this repo: pack and verify the anchor story before sharing: `btg pack-story stories/the-night-key --out dist/the-night-key.pack.zip` then `btg verify-pack dist/the-night-key.pack.zip`.
 
 
+This guide is for `storygame-engine` (CLI: `btg`).
 
 A **story pack** is a deterministic zip file that contains:
 
@@ -39,3 +40,7 @@ python scripts/build_packs.py
 ```
 
 This is designed for “proof-first” sharing: deterministic outputs and stable hashing.
+
+## Multi-file stories
+
+If your story uses `includes:` in `scenes.yaml`, keep the included files **inside the same story folder**. `btg pack-story` includes all files under the story directory, and `btg verify-pack` checks that all `includes:` entries are present in the pack payload.
