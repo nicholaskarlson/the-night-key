@@ -8,7 +8,6 @@
 > Quickstart (most readers): `btg play --story the-night-key` and `btg lint --strict --story the-night-key`.
 
 
-This guide is for `storygame-engine` (CLI: `btg`).
 
 ## Story discovery
 

@@ -8,7 +8,6 @@
 > If you see flags not being applied, check that your choices use `sets_flags` / `clears_flags` (or the accepted aliases `set_flags` / `clear_flags`).
 
 
-This guide is for `storygame-engine` (CLI: `btg`).
 
 ## YAML won’t parse
 

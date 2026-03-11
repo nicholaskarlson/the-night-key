@@ -7,8 +7,6 @@
 > Upstream engine: https://github.com/nicholaskarlson/storygame-engine
 
 
-This guide is for `storygame-engine` (CLI: `btg`).
-
 You can build a complete story game by editing one file: **`scenes.yaml`**.
 
 A story is a set of **scenes**. Each scene has:
@@ -28,40 +26,7 @@ Each choice has:
 - optional numeric state gates (`requires_state`, `forbids_state`) for `day`, `energy`, `support`, `guilt`, `warmth`
 - optional numeric state deltas in `delta` for the same five fields
 
-## Numeric state gating (new)
-
-In addition to flag gating, a choice can be gated on the five numeric state fields:
-
-- `day`
-- `energy`
-- `support`
-- `guilt`
-- `warmth`
-
-Use `requires_state` to **require** comparisons to be true, and `forbids_state` to **hide** a choice when a comparison is true.
-
-Example:
-
-```yaml
-choices:
-  - label: "Keep searching the floor."
-    goto: hallway_search
-    requires_state:
-      energy: ">= 3"
-      guilt: "<= 4"
-
-  - label: "Sit down. You're shaking."
-    goto: take_a_breath
-    forbids_state:
-      warmth: "< 2"
-```
-
-Supported operators: `>=` `<=` `>` `<` `==` `!=`
-
-Tip: This feature is meant to avoid “threshold flags” like `too_tired`. You can gate directly on `energy` instead.
-
 ## Create a new story
-
 ```bash
 btg init-story stories/my_story --title "My Story"
 btg list-stories
@@ -87,33 +52,7 @@ btg play --story my_story
 btg play --scenes stories/my_story/scenes.yaml
 ```
 
-## Text templating (new)
-
-Scene text supports tiny, deterministic templates. You can reference the current state values directly in the prose:
-
-- `{day}`
-- `{energy}`
-- `{support}`
-- `{guilt}`
-- `{warmth}`
-- `{flags}` (sorted list of active flags, or `(none)`)
-
-Example:
-
-```yaml
-- id: status_check
-  text: >
-    You check the meter. Energy={energy}. Day={day}.
-    Flags now: {flags}
-  choices:
-    - label: "Continue."
-      goto: next_scene
-```
-
-To include literal braces in text, escape them as `{{` and `}}`.
-
 ## Minimal example
-
 ```yaml
 schema_version: 1
 title: "A Tiny Story"
@@ -147,7 +86,6 @@ scenes:
 ```
 
 ## State model
-
 The engine tracks a small “day 1” state:
 
 - `day`, `energy`, `support`, `guilt`, `warmth` (integers, clamped 0–10)
@@ -155,9 +93,78 @@ The engine tracks a small “day 1” state:
 
 `delta` supports only those numeric keys, with integer adjustments like `+1` or `-2`.
 
-## Design tips
+## Numeric state gating (new)
+In addition to flag gating, a choice can be gated on the five numeric state fields:
 
+- `day`
+- `energy`
+- `support`
+- `guilt`
+- `warmth`
+
+Use `requires_state` to **require** comparisons to be true, and `forbids_state` to **hide** a choice when a comparison is true.
+
+Example:
+
+```yaml
+choices:
+  - label: "Keep searching the floor."
+    goto: hallway_search
+    requires_state:
+      energy: ">= 3"
+      guilt: "<= 4"
+
+  - label: "Sit down. You're shaking."
+    goto: take_a_breath
+    forbids_state:
+      warmth: "< 2"
+```
+
+Supported operators: `>=` `<=` `>` `<` `==` `!=`
+
+Tip: This feature is meant to avoid “threshold flags” like `too_tired`. You can gate directly on `energy` instead.
+
+## Text templating (new)
+Scene text supports tiny, deterministic templates. You can reference the current state values directly in the prose:
+
+- `{day}`
+- `{energy}`
+- `{support}`
+- `{guilt}`
+- `{warmth}`
+- `{flags}` (sorted list of active flags, or `(none)`)
+
+Example:
+
+```yaml
+- id: status_check
+  text: >
+    You check the meter. Energy={energy}. Day={day}.
+    Flags now: {flags}
+  choices:
+    - label: "Continue."
+      goto: next_scene
+```
+
+To include literal braces in text, escape them as `{{` and `}}`.
+
+## Design tips
 - Keep scene ids short and stable.
 - Prefer **many small scenes** over one large “wall of text”.
 - Use flags to represent “facts” that matter later.
 - Use `btg lint --strict` often.
+
+## Proof-first workflow
+
+This project favors **proof-first** iteration:
+
+1. **Write** a small change.
+2. **Lint early**: `btg lint --strict --story the-night-key`
+3. **Play often**: `btg play --story the-night-key`
+4. **Run the repo checks**: `pytest -q` (and `ruff check .`)
+5. **Commit** with a clear message describing the narrative/structural change.
+
+Before sharing a release build, use deterministic packs:
+
+- `btg pack-story stories/the-night-key --out dist/the-night-key.pack.zip`
+- `btg verify-pack dist/the-night-key.pack.zip`
