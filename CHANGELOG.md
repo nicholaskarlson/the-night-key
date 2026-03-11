@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- PR9: cleanup drop-in apply notes + fix play.ps1 arg forwarding
+- PR4: numeric choice gating via `requires_state` / `forbids_state` for the five state fields.
+- PR5: deterministic scene-text templating (`{day}`, `{energy}`, `{support}`, `{guilt}`, `{warmth}`, `{flags}`) with lint guardrails.
+- PR3: docs clarity for book repo + anchor story README.
 
 ## 0.1.0 (book companion)
 
@@ -14,3 +16,4 @@
 - PR6: sanitize Windows snippets; friendlier YAML parse errors
 - PR7: one-command play scripts (play.ps1 + play.sh)
 - PR8: public repo polish (templates, contributing, release docs, press checklist)
+
