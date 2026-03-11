@@ -1,7 +1,14 @@
 # Sharing stories (packs + gallery)
 
+> **The Night Key book repo note**
+>
+> This repository is the companion codebase for the book *The Night Key*. It includes the `btg` interactive-fiction engine (MIT) **plus** the anchor story under `stories/the-night-key/`.
+>
+> Upstream engine: https://github.com/nicholaskarlson/storygame-engine
+> Recommended for this repo: pack and verify the anchor story before sharing: `btg pack-story stories/the-night-key --out dist/the-night-key.pack.zip` then `btg verify-pack dist/the-night-key.pack.zip`.
+
+
 This guide is for `storygame-engine` (CLI: `btg`).
-Website: storygame.ca
 
 A **story pack** is a deterministic zip file that contains:
 

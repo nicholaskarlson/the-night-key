@@ -1,7 +1,14 @@
 # Troubleshooting
 
+> **The Night Key book repo note**
+>
+> This repository is the companion codebase for the book *The Night Key*. It includes the `btg` interactive-fiction engine (MIT) **plus** the anchor story under `stories/the-night-key/`.
+>
+> Upstream engine: https://github.com/nicholaskarlson/storygame-engine
+> If you see flags not being applied, check that your choices use `sets_flags` / `clears_flags` (or the accepted aliases `set_flags` / `clear_flags`).
+
+
 This guide is for `storygame-engine` (CLI: `btg`).
-Website: storygame.ca
 
 ## YAML won’t parse
 

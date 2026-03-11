@@ -1,7 +1,13 @@
 # Authoring guide (non-programmers)
 
+> **The Night Key book repo note**
+>
+> This repository is the companion codebase for the book *The Night Key*. It includes the `btg` interactive-fiction engine (MIT) **plus** the anchor story under `stories/the-night-key/`.
+>
+> Upstream engine: https://github.com/nicholaskarlson/storygame-engine
+
+
 This guide is for `storygame-engine` (CLI: `btg`).
-Website: storygame.ca
 
 You can build a complete story game by editing one file: **`scenes.yaml`**.
 
@@ -18,7 +24,7 @@ Each choice has:
 - optional `delta` (changes to the player state)
 - optional flag changes (`sets_flags`, `clears_flags`)
 
-Note: For compatibility, `set_flags` and `clear_flags` are also accepted as aliases.
+Note: For compatibility, `sets_flags` and `clears_flags` are also accepted as aliases.
 - optional `requires_flags` / `forbids_flags` (gates visibility)
 
 ## Create a new story
