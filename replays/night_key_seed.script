@@ -1,0 +1,20 @@
+# The Night Key — seed replay (0-based choice indices)
+# Path: lobby_arrival -> basement -> room_404 -> confront_manager -> call_police_now
+#
+# NOTE: indices are 0-based (0 = first visible choice).
+
+1
+0
+0
+0
+0
+0
+0
+1
+0
+2
+0
+1
+0
+1
+0

@@ -1,0 +1,61 @@
+[lobby_arrival]
+The lobby smells like wet wool and old lemon polish. Rain needles the glass. You sign in for the night shift and the desk phone blinks once—then goes still. Upstairs, a guest has not been seen since dusk.
+> Walk the hallway and listen at doors.
+[hallway_listen]
+The hallway carpet drinks your footsteps. Behind one door, a TV murmurs. Behind another—nothing. The quiet has weight.
+> Try the service stairwell.
+[service_stairs_locked]
+The service door is locked. A small sign reads STAFF ONLY. The keyhole looks recently scratched.
+> Go find maintenance.
+[find_maintenance]
+In the back corridor, a maintenance worker wipes his hands on a rag. He watches you the way people watch trouble approaching.
+> Ask for the master key.
+[ask_key]
+“We don’t just hand that out,” he says. Then, quieter: “Not tonight.”
+> Press him.
+[press_key]
+He studies your face. “If I give you the key,” he says, “you’re in it with me.”
+> Promise you won’t blame him.
+[key_promise]
+He nods once and slips the master key into your palm like a secret.
+> Return to the hallway.
+[hallway_listen]
+The hallway carpet drinks your footsteps. Behind one door, a TV murmurs. Behind another—nothing. The quiet has weight.
+> Try the service stairwell door with the master key.
+[service_stairs_open]
+The master key turns too smoothly, as if it has been used tonight already. The service stairwell smells like damp concrete and old detergent. One flight down, a second door waits with a deadbolt and a smear of fresh paint.
+> Go down one flight.
+[basement_landing]
+The stairwell closes behind you with a soft click. The air is colder here, and the concrete holds the day’s damp like a memory. You count what’s left of you—4—and wish the number meant something more than “keep moving.”
+Halfway down, a second door waits. Someone has rolled fresh paint across it like a hurried apology.
+> Pause and breathe warmth into your hands.
+[basement_warmth]
+You press your palms together and breathe. The small act feels ridiculous, but it gives you back something you didn’t know you were losing.
+Warmth: 4.
+> Try the painted door now.
+[painted_door]
+Up close, the paint is still tacky. It smells like a cover story. The knob is worn smooth from hands that pretended this was routine.
+> Use the master key.
+[room_404]
+The room beyond is not a guest room. It is a place where the building keeps what it doesn’t want seen: spare linens, a cracked mirror, and a chair that has been dragged to the center as if someone waited there for hours.
+On the chair is a folded message, weighed down with a tarnished room key.
+You flip to the page in your notebook where you list what you’ve confirmed tonight: found_master_key, room_404_opened, trusted_maintenance.
+> Read the folded message.
+[read_message]
+The handwriting is careful, almost polite.
+“If you find this, I did not vanish. I left because the hotel makes vanishing convenient. Room 404 is not a room. It is where they put the story when they need it to stop.”
+The note ends with a time, a name you don’t recognize, and one sentence that lands like a weight: “Please don’t let them call it nothing.”
+> Tell the manager what you found (only if you can keep your voice kind).
+[confront_manager]
+The manager is in his office when you find him, coat still on, as if he never intends to stay long enough to be responsible for the night.
+You place the tarnished key on his desk. You do not raise your voice. You do not give him the drama he expects.
+For a moment he looks relieved. Then he looks angry—because relief means you could have chosen otherwise.
+> Insist on doing the right thing anyway.
+[call_police_now]
+You pick up the lobby phone and dial anyway.
+The dispatcher asks for details. You give them what you have: the missing guest, the painted door, the message, the key that shouldn’t exist. Outside, the rain keeps moving, indifferent as always, but inside the lobby something changes.
+You are not solving everything tonight. You are refusing the convenient story. You will stay until they arrive, even if you have only 3 left to give.
+Whatever this place is, it does not get to make people disappear into “nothing.”
+You hang up and wait.
+End.
+[end]
