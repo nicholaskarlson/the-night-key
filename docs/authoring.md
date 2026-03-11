@@ -17,6 +17,8 @@ Each choice has:
 - `goto` (scene id to transition to)
 - optional `delta` (changes to the player state)
 - optional flag changes (`sets_flags`, `clears_flags`)
+
+Note: For compatibility, `set_flags` and `clear_flags` are also accepted as aliases.
 - optional `requires_flags` / `forbids_flags` (gates visibility)
 
 ## Create a new story

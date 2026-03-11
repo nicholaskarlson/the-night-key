@@ -174,9 +174,15 @@ def load_story_text(text: str, source: str | None = None) -> Story:
             forbids_flags = tuple(
                 _as_str_list(c.get("forbids_flags", []), field="forbids_flags", ctx=cctx)
             )
-            sets_flags = tuple(_as_str_list(c.get("sets_flags", []), field="sets_flags", ctx=cctx))
+            _raw_sets = c.get("sets_flags", None)
+            if _raw_sets is None:
+                _raw_sets = c.get("set_flags", [])
+            sets_flags = tuple(_as_str_list(_raw_sets, field="sets_flags", ctx=cctx))
+            _raw_clears = c.get("clears_flags", None)
+            if _raw_clears is None:
+                _raw_clears = c.get("clear_flags", [])
             clears_flags = tuple(
-                _as_str_list(c.get("clears_flags", []), field="clears_flags", ctx=cctx)
+                _as_str_list(_raw_clears, field="clears_flags", ctx=cctx)
             )
 
             choices.append(
