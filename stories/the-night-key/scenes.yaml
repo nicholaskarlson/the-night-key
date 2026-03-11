@@ -1,13 +1,19 @@
 schema_version: 1
 title: "The Night Key"
 start: lobby_arrival
+
+# Flags are declared here so lint can warn about typos and unused flags.
+# Keep this list tight and intentional.
 flags:
   - found_master_key
   - saw_guest_log
   - trusted_maintenance
-  - called_police
   - manager_warned
-includes:
-  - scenes/act1.yaml
+  - called_police
+  - room_404_opened
+  - found_message
 
-scenes: []
+# Multi-file story support: this root file contains metadata and includes.
+# Glob expansion is deterministic (sorted), so acts load in order.
+includes:
+  - scenes/act*.yaml

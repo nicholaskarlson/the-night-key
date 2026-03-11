@@ -75,7 +75,8 @@ scenes:
     One flight down, a second door waits with a deadbolt and a smear of fresh paint.
   choices:
     - label: "Go down one flight."
-      goto: end_shift
+      goto: basement_landing
+      delta: { energy: -1 }
     - label: "Close the door and return to the lobby."
       goto: hallway_listen
 
