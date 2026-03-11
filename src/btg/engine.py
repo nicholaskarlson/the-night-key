@@ -335,8 +335,99 @@ def load_story_text(text: str, source: str | None = None) -> Story:
 
 
 def load_story(path: Path) -> Story:
-    """Load a story from a filesystem path."""
-    return load_story_text(path.read_text(encoding="utf-8"), source=str(path))
+    """Load a story from a filesystem path.
+
+    Supports multi-file stories via a top-level `includes:` list in scenes.yaml.
+
+    - `includes:` entries are relative to the directory containing scenes.yaml.
+    - Glob patterns are allowed and expanded deterministically (sorted by POSIX path).
+    - Duplicate scene IDs across files are a hard error.
+    """
+    path = path.expanduser().resolve()
+    base_dir = path.parent
+
+    text = path.read_text(encoding="utf-8")
+    try:
+        raw = yaml.safe_load(text)
+    except yaml.YAMLError as e:
+        raise ValueError(_format_yaml_error(e, text, str(path))) from e
+
+    # No includes? Fall back to the normal text parser for consistent behavior.
+    if not isinstance(raw, dict) or "includes" not in raw:
+        return load_story_text(text, source=str(path))
+
+    includes = raw.get("includes", [])
+    if includes is None:
+        includes = []
+    if not isinstance(includes, list):
+        raise ValueError(f"{path}: root.includes must be a list of strings")
+
+    # Root scenes are optional if includes are present.
+    root_scenes = raw.get("scenes", []) or []
+    if not isinstance(root_scenes, list):
+        raise ValueError(f"{path}: root.scenes must be a list")
+
+    merged_scenes: list[object] = list(root_scenes)
+
+    def _is_within(child: Path, parent: Path) -> bool:
+        try:
+            child.resolve().relative_to(parent.resolve())
+            return True
+        except Exception:
+            return False
+
+    for i, inc in enumerate(includes):
+        if not isinstance(inc, str):
+            raise ValueError(f"{path}: includes[{i}] must be a string")
+        pattern = inc.strip()
+        if not pattern:
+            raise ValueError(f"{path}: includes[{i}] must be a non-empty string")
+
+        # Glob expansion is deterministic.
+        if any(ch in pattern for ch in ["*", "?", "["]):
+            matches = sorted(base_dir.glob(pattern), key=lambda p: p.as_posix())
+        else:
+            matches = [base_dir / pattern]
+
+        if not matches:
+            raise ValueError(f"{path}: includes[{i}] matched no files: {pattern}")
+
+        for p in matches:
+            p = p.expanduser().resolve()
+            if not _is_within(p, base_dir):
+                raise ValueError(f"{path}: include escapes story directory: {inc}")
+            if not p.exists() or not p.is_file():
+                raise ValueError(f"{path}: include not found: {p}")
+
+            inc_text = p.read_text(encoding="utf-8")
+            try:
+                inc_raw = yaml.safe_load(inc_text)
+            except yaml.YAMLError as e:
+                raise ValueError(_format_yaml_error(e, inc_text, str(p))) from e
+
+            # Included file may be:
+            # - a mapping with `scenes: [...]`
+            # - a bare list of scene objects
+            if isinstance(inc_raw, dict) and "scenes" in inc_raw:
+                inc_scenes = inc_raw.get("scenes", [])
+            else:
+                inc_scenes = inc_raw
+
+            if inc_scenes is None:
+                continue
+            if not isinstance(inc_scenes, list):
+                raise ValueError(
+                    f"{p}: included YAML must be a list of scenes (or mapping with 'scenes')"
+                )
+            merged_scenes.extend(inc_scenes)
+
+    raw2 = dict(raw)
+    raw2["scenes"] = merged_scenes
+    raw2.pop("includes", None)
+
+    # Parse via the existing text parser for consistent validation.
+    merged_text = yaml.safe_dump(raw2, sort_keys=False, allow_unicode=True)
+    return load_story_text(merged_text, source=str(path))
 
 
 def load_scenes_text(text: str) -> dict[str, Scene]:

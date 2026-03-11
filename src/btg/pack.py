@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import fnmatch
 import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
 from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
+
+import yaml
 
 from .engine import Story, load_story
 
@@ -125,6 +128,56 @@ def build_pack(story_dir: Path, out_path: Path, *, force: bool = False) -> PackR
             _zip_write_file(z, rel, f)
 
     return PackResult(pack_path=out_path, files_written=len(files) + 2, manifest=manifest)
+
+
+def _pack_includes_missing(listed: set[str], scenes_text: str) -> list[str]:
+    """Return include entries from scenes.yaml that are not satisfied by the pack manifest.
+
+    We treat the manifest's `files[].path` list as the authoritative payload.
+    Glob patterns are matched against those paths deterministically.
+    """
+    try:
+        raw = yaml.safe_load(scenes_text)
+    except Exception:
+        return []
+
+    if not isinstance(raw, dict):
+        return []
+
+    includes = raw.get("includes", [])
+    if includes is None:
+        includes = []
+    if not isinstance(includes, list):
+        return []
+
+    def _has_glob(s: str) -> bool:
+        return any(ch in s for ch in ["*", "?", "["])
+
+    missing: list[str] = []
+    for inc in includes:
+        if not isinstance(inc, str):
+            continue
+        pat = inc.strip()
+        if not pat:
+            continue
+
+        if _has_glob(pat):
+            matches = sorted([p for p in listed if fnmatch.fnmatch(p, pat)])
+            if not matches:
+                missing.append(pat)
+        else:
+            if pat not in listed:
+                missing.append(pat)
+
+    # de-dup preserve order
+    seen: set[str] = set()
+    out: list[str] = []
+    for m in missing:
+        if m in seen:
+            continue
+        seen.add(m)
+        out.append(m)
+    return out
 
 
 def read_pack_scenes_text(pack_path: Path) -> str:
@@ -279,6 +332,17 @@ def verify_pack(pack_path: Path) -> VerifyResult:
                         errors.append(f"manifest.sha256: missing entry for {rel}")
                     elif expected != actual:
                         errors.append(f"sha mismatch: {rel}")
+
+                # Multi-file story support: ensure `includes:` entries are
+                # satisfied by the pack payload.
+                if "scenes.yaml" in names:
+                    try:
+                        scenes_text = z.read("scenes.yaml").decode("utf-8")
+                        missing = _pack_includes_missing(set(listed), scenes_text)
+                        for miss in missing:
+                            errors.append(f"pack: includes missing from payload: {miss}")
+                    except Exception:
+                        pass
 
                 allowed = set(listed) | {"pack_manifest.json", "manifest.sha256"}
                 extras = sorted(n for n in names if n not in allowed and not n.endswith("/"))
