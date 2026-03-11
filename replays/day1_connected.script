@@ -1,0 +1,8 @@
+# Day 1 connected path:
+# arrival: text cousin -> cousin: ask them to come -> foyer: living room
+# living room: answer knock -> neighbor: accept help (requires asked_for_help)
+2
+0
+1
+4
+0

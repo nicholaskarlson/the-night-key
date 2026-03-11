@@ -1,0 +1,433 @@
+schema_version: 1
+title: "Bereavement Textgame — Day 1"
+start: "day1_arrival"
+
+# Optional: declared flags for authors and reviewers.
+# The engine does not require this list to be exhaustive, but we keep it accurate.
+flags:
+  - called_mom
+  - asked_for_help
+  - used_humor
+  - touched_shovel
+  - listened_voicemail
+
+scenes:
+  - id: day1_arrival
+    text: |
+      The driveway is narrower than you remember.
+      Snow piles against the porch rail like it’s trying to keep the house quiet.
+
+      You sit in the car for a moment, engine ticking.
+      The kitchen window is lit — warm and steady, like it hasn't noticed the year.
+
+    choices:
+      - label: "Go inside."
+        goto: day1_foyer
+        delta: { energy: -1, warmth: +1 }
+
+      - label: "Call your mom from the car."
+        goto: day1_call_mom
+        delta: { support: +1, guilt: +1 }
+        sets_flags: [called_mom]
+
+      - label: "Text your cousin: “I’m here.”"
+        goto: day1_cousin_text
+        delta: { support: +1 }
+        sets_flags: [asked_for_help]
+
+  - id: day1_call_mom
+    text: |
+      Your mom answers on the second ring.
+
+      Neither of you says his name at first.
+      She asks if you're eating. You lie and say yes.
+
+      "Come inside when you're ready," she says.
+      Her voice makes the house feel less like a museum.
+
+    choices:
+      - label: "Promise you’ll sleep tonight (even if you don’t mean it)."
+        goto: day1_foyer
+        delta: { support: +1, guilt: +1 }
+        sets_flags: [called_mom]
+
+      - label: "Tell the truth: you don’t know how to do tonight."
+        goto: day1_foyer
+        delta: { support: +2, warmth: +1 }
+        sets_flags: [called_mom]
+
+  - id: day1_cousin_text
+    text: |
+      Your cousin replies fast — faster than you expect.
+
+      "Want me to come by?"
+      The offer is simple. The weight behind it isn’t.
+
+    choices:
+      - label: "Say yes. Ask them to come over."
+        goto: day1_foyer
+        delta: { support: +2 }
+        sets_flags: [asked_for_help]
+
+      - label: "Say you’re okay. Say you’ll text later."
+        goto: day1_foyer
+        delta: { guilt: +1 }
+
+  - id: day1_foyer
+    text: |
+      The foyer is colder than the car.
+
+      Coats hang like quiet witnesses.
+      Your boots leave a thin line of snow that melts before it reaches the mat.
+
+      Down the hall, the kitchen light waits.
+
+    choices:
+      - label: "Go to the kitchen."
+        goto: day1_kitchen
+
+      - label: "Go to the living room."
+        goto: day1_living_room
+
+  - id: day1_kitchen
+    text: |
+      The kitchen smells like old coffee and something sweet you can’t place.
+
+      On the table: a single glove.
+      In the corner: the kettle.
+      On the fridge: a note held by a magnet you don’t remember buying.
+
+    choices:
+      - label: "Read the fridge note."
+        goto: day1_fridge_note
+        delta: { warmth: +1 }
+
+      - label: "Listen to the voicemail you can’t stop thinking about."
+        goto: day1_voicemail
+        delta: { guilt: -1 }
+        sets_flags: [listened_voicemail]
+
+      - label: "Step into the mudroom and look at the shovel."
+        goto: day1_mudroom
+        delta: { energy: -1 }
+        sets_flags: [touched_shovel]
+
+      - label: "Carry the glove to the living room."
+        goto: day1_living_room
+        delta: { warmth: +1 }
+
+      - label: "Put the kettle on."
+        goto: day1_kettle
+        delta: { warmth: +1 }
+
+  - id: day1_fridge_note
+    text: |
+      The note is written in a familiar mess of letters.
+
+      "IF YOU'RE READING THIS, YOU OWE ME ONE (1) JOKE.
+      ALSO: STOP WORRYING. I'M FINE. I'M ALWAYS FINE."
+
+      You hear his voice in the punctuation.
+      Humor as a shield. Humor as a gift.
+
+    choices:
+      - label: "Smile. Keep the note."
+        goto: day1_joke_text
+        delta: { warmth: +1 }
+        sets_flags: [used_humor]
+
+      - label: "Put it back on the fridge."
+        goto: day1_kitchen
+        delta: { guilt: +1 }
+
+  - id: day1_voicemail
+    text: |
+      You hold the phone like it might bite.
+
+      His voice arrives anyway — ordinary, warm, annoyingly alive:
+      "Hey. Call me back when you get a second."
+
+      There’s a half-laugh at the end, like he’s already amused by whatever you’ll say.
+
+    choices:
+      - label: "Save it. Put the phone down."
+        goto: day1_living_room
+        delta: { warmth: +1 }
+
+      - label: "Text your cousin: “Can you talk?”"
+        goto: day1_cousin_text
+        delta: { support: +1 }
+        sets_flags: [asked_for_help]
+
+      - label: "Go to the living room without looking at anything else."
+        goto: day1_living_room
+        delta: { energy: -1 }
+
+  - id: day1_mudroom
+    text: |
+      The mudroom is cluttered in the way only family clutter is.
+
+      The shovel leans where it always leaned.
+      The snow outside looks innocent.
+
+      You rest your hand on the handle.
+      Cold through the glove. Cold through the story you wish had ended differently.
+
+    choices:
+      - label: "Step back to the kitchen."
+        goto: day1_kitchen
+
+      - label: "Go find a photo."
+        goto: day1_photo
+        delta: { warmth: +1 }
+
+      - label: "Open the door when someone knocks."
+        goto: day1_neighbor
+        delta: { support: +1 }
+        sets_flags: [asked_for_help]
+
+      - label: "Go sit down."
+        goto: day1_living_room
+        delta: { energy: -1 }
+
+  - id: day1_living_room
+    text: |
+      The living room still remembers him.
+
+      The couch cushions hold a shape.
+      The TV remote sits where it was left, like a paused sentence.
+
+      You can sit. You can move. You can pretend you’re choosing.
+
+    choices:
+      - label: "Sit on the couch."
+        goto: day1_end_solitary
+        delta: { warmth: +1 }
+
+      - label: "Look at the framed photo on the shelf."
+        goto: day1_photo
+        delta: { warmth: +1 }
+
+      - label: "Go downstairs."
+        goto: day1_basement
+        delta: { energy: -1 }
+
+      - label: "Go upstairs."
+        goto: day1_stairs
+        delta: { energy: -1 }
+
+      - label: "Answer the knock at the door."
+        goto: day1_neighbor
+        delta: { support: +1 }
+        sets_flags: [asked_for_help]
+
+  - id: day1_photo
+    text: |
+      The photo is a little crooked.
+
+      The two of you are laughing.
+      His grin is too big for the frame, like the camera couldn’t keep up.
+
+      You straighten it carefully, as if straightening could change anything.
+
+    choices:
+      - label: "If you listened to the voicemail, replay it once — just the last line."
+        goto: day1_kettle
+        requires_flags: [listened_voicemail]
+        delta: { warmth: +1 }
+
+      - label: "Set the photo down and breathe."
+        goto: day1_kettle
+        delta: { warmth: +1 }
+
+      - label: "Go upstairs."
+        goto: day1_stairs
+        delta: { energy: -1 }
+
+  - id: day1_neighbor
+    text: |
+      A neighbor stands on the porch with a careful face.
+
+      "Hey," they say. "We heard. I'm so sorry."
+      They hold a covered dish like a peace offering.
+
+      "Do you need anything?"
+
+    choices:
+      - label: "Say yes. Let them help."
+        goto: day1_end_connected
+        requires_flags: [asked_for_help]
+        delta: { support: +2, warmth: +1 }
+
+      - label: "Crack the smallest joke you can manage."
+        goto: day1_end_humor
+        delta: { warmth: +1 }
+        sets_flags: [used_humor]
+
+      - label: "Say thank you and close the door."
+        goto: day1_kitchen
+        delta: { guilt: +1 }
+
+  - id: day1_basement
+    text: |
+      The basement stairs creak in the same places as always.
+
+      Old boxes. Old tools.
+      The air carries a hint of the habits he never fully quit.
+
+      You feel anger. You feel love.
+      You feel the uselessness of knowing both are true.
+
+    choices:
+      - label: "Head back upstairs."
+        goto: day1_living_room
+
+      - label: "Write down one good memory before it slips away."
+        goto: day1_joke_text
+        delta: { warmth: +1 }
+
+      - label: "If you kept the humor thread, let yourself laugh once."
+        goto: day1_end_humor
+        requires_flags: [used_humor]
+        delta: { warmth: +1 }
+
+  - id: day1_stairs
+    text: |
+      Upstairs, the hallway is narrower than you remember.
+
+      His door is closed.
+      The handle looks untouched, as if the house agreed not to open it without permission.
+
+      You can turn back. You can try.
+
+    choices:
+      - label: "Stop at his door."
+        goto: day1_bedroom_door
+        delta: { energy: -1 }
+
+      - label: "Turn back to the living room."
+        goto: day1_living_room
+
+  - id: day1_bedroom_door
+    text: |
+      You stand with your hand on the knob.
+
+      The room is on the other side: the last version of him, frozen.
+      You don’t want it to be true.
+      You don’t want to forget what true looks like.
+
+    choices:
+      - label: "Open the door."
+        goto: day1_bedroom_box
+        delta: { guilt: +1, energy: -1 }
+
+      - label: "Not yet."
+        goto: day1_living_room
+        delta: { warmth: +1 }
+
+  - id: day1_bedroom_box
+    text: |
+      The room holds ordinary things: laundry, books, a half-finished project.
+
+      In the closet, you find a small box.
+      Inside: a note, a keychain, and something that makes you exhale a surprised laugh.
+
+      He always kept the weird little treasures.
+
+    choices:
+      - label: "Close the box and step away."
+        goto: day1_end_solitary
+        delta: { warmth: +1 }
+
+      - label: "Keep the silly thing. Let it count as love."
+        goto: day1_end_humor
+        delta: { warmth: +2 }
+        sets_flags: [used_humor]
+
+      - label: "Text your cousin: “I could use company.”"
+        goto: day1_end_connected
+        delta: { support: +2 }
+        sets_flags: [asked_for_help]
+
+  - id: day1_joke_text
+    text: |
+      You open a new message.
+
+      For a second you don’t know what to write.
+      Then you do.
+
+      It isn’t clever. It isn’t polished.
+      It’s just a small bridge built from words.
+
+    choices:
+      - label: "Send it to your cousin."
+        goto: day1_end_humor
+        delta: { warmth: +1 }
+        sets_flags: [used_humor, asked_for_help]
+
+      - label: "Save it as a draft."
+        goto: day1_kettle
+        delta: { guilt: -1 }
+        sets_flags: [used_humor]
+
+  - id: day1_kettle
+    text: |
+      The kettle clicks on.
+
+      The sound is normal, almost rude in its normalness.
+      Steam rises like the house is still trying to take care of you.
+
+      This is the part nobody teaches: the small choices that keep happening.
+
+    choices:
+      - label: "Make tea and call your mom."
+        goto: day1_end_connected
+        requires_flags: [called_mom]
+        delta: { support: +1, warmth: +1 }
+
+      - label: "Make tea and text your cousin."
+        goto: day1_end_connected
+        requires_flags: [asked_for_help]
+        delta: { support: +1, warmth: +1 }
+
+      - label: "Make tea and sit alone at the table."
+        goto: day1_end_solitary
+        delta: { warmth: +1 }
+
+      - label: "Make tea and write down his best joke."
+        goto: day1_end_humor
+        requires_flags: [used_humor]
+        delta: { warmth: +1 }
+
+  - id: day1_end_connected
+    terminal: true
+    text: |
+      You don’t solve anything.
+
+      But you connect to something living:
+      a voice on the phone, a person on the porch, a cousin who texts back fast.
+
+      The house is still quiet.
+      You are not as alone inside it.
+
+  - id: day1_end_solitary
+    terminal: true
+    text: |
+      You sit with the quiet.
+
+      It is not brave. It is not weak.
+      It is just what happens when a room remembers someone.
+
+      The kettle cools.
+      Your hands unclench, one breath at a time.
+
+  - id: day1_end_humor
+    terminal: true
+    text: |
+      The laugh surprises you.
+
+      It doesn’t erase grief.
+      It just proves love can share space with it.
+
+      Somewhere in your head, he’s already making fun of your serious face.
+      And for a moment, the memory feels like a hand on your shoulder.

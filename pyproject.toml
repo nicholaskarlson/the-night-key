@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "storygame-engine"
+version = "0.1.0"
+description = "Cross-platform Python text game (proof-first) with deterministic share artifacts."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [{name = "Nicholas Elliott Karlson"}]
+dependencies = [
+  "pyyaml>=6.0,<7",
+  "rich>=13.0,<15",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=9,<10",
+  "ruff>=0.15,<0.16",
+  "mypy>=1.19,<1.20",
+  "types-PyYAML>=6.0,<7",
+]
+
+[project.scripts]
+btg = "btg.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["btg*"]
+
+[tool.setuptools.package-data]
+btg = ["data/*.yaml"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E","F","I","B","UP"]
+ignore = ["E203"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+no_implicit_optional = true

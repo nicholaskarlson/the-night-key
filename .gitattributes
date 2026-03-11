@@ -1,0 +1,15 @@
+# Proof-first line endings: prefer LF everywhere.
+* text=auto eol=lf
+
+# Windows command files are typically CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary artifacts
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.zip binary
+*.docx binary
+dist/** binary

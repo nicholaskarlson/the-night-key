@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+*.egg-info/
+.DS_Store
+Thumbs.db
+my_story/
+
+# Local patch artifacts
+*.gitpatch
+
+# Local drop-in apply notes
+APPLY_PR*.txt

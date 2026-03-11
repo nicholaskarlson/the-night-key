@@ -1,0 +1,48 @@
+schema_version: 1
+title: "My Story"
+start: intro
+
+# Declare flags you plan to use in this story.
+flags:
+  - took_photo
+
+scenes:
+  - id: intro
+    text: |
+      You are standing at the edge of a moment.
+      Pick one small action and let the story follow it.
+
+    choices:
+      - label: "Pick up the photo."
+        goto: kitchen
+        sets_flags: [took_photo]
+        delta: { warmth: +1 }
+
+      - label: "Walk straight into the kitchen."
+        goto: kitchen
+        delta: { energy: -1 }
+
+  - id: kitchen
+    text: |
+      The kitchen is brighter than you expected.
+      The air holds the quiet hum of ordinary life.
+
+    choices:
+      - label: "Look at the photo again."
+        goto: end
+        requires_flags: [took_photo]
+        delta: { warmth: +1 }
+
+      - label: "Sit at the table and breathe."
+        goto: end
+        delta: { support: +1 }
+
+  - id: end
+    terminal: true
+    text: |
+      End of the starter story.
+
+      Next:
+      - Add a new scene id under `scenes:`
+      - Point a `goto:` at it
+      - Keep running `btg lint --strict` as you iterate
