@@ -5,6 +5,9 @@ set -euo pipefail
 #   bash scripts/play.sh
 #   bash scripts/play.sh -- --story starter
 # Any args after -- are forwarded to: btg play <args>
+#
+# Default (no args): plays The Night Key:
+#   btg play --story the-night-key
 
 if [ ! -d ".venv" ]; then
   python3 -m venv .venv
@@ -21,7 +24,7 @@ if [ "${1:-}" = "--" ]; then
 fi
 
 if [ "$#" -eq 0 ]; then
-  btg play --story starter
+  btg play --story the-night-key
 else
   btg play "$@"
 fi
