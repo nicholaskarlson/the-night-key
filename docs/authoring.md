@@ -164,6 +164,9 @@ The engine tracks a small “day 1” state:
 
 ## Multi-file stories (new)
 
+Packs also support `includes:`. If you pack a multi-file story, the engine will merge the included files when loading from the pack.
+
+
 For larger projects, you can split scenes across multiple YAML files.
 
 In your `scenes.yaml` (the required entrypoint), add an `includes:` list. Entries are

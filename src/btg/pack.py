@@ -190,6 +190,102 @@ def read_pack_scenes_text(pack_path: Path) -> str:
     return b.decode("utf-8")
 
 
+def read_pack_story_text(pack_path: Path) -> str:
+    """Read a story from a pack as merged YAML text.
+
+    If the pack's scenes.yaml declares a top-level `includes:` list, referenced files are
+    read from the zip and merged deterministically into one story before parsing.
+
+    This makes `btg play/lint/replay --pack ...` behave the same as loading from disk.
+    """
+    pack_path = pack_path.expanduser().resolve()
+    with ZipFile(pack_path, "r") as z:
+        try:
+            root_text = z.read("scenes.yaml").decode("utf-8")
+        except KeyError as e:
+            raise ValueError("pack: missing scenes.yaml") from e
+
+        try:
+            raw = yaml.safe_load(root_text)
+        except Exception as e:  # noqa: BLE001
+            raise ValueError(f"pack: scenes.yaml YAML parse error: {e}") from e
+
+        if not isinstance(raw, dict):
+            return root_text
+
+        includes = raw.get("includes", [])
+        if includes is None:
+            includes = []
+        if not isinstance(includes, list):
+            raise ValueError("pack: scenes.yaml includes must be a list of strings")
+
+        if not includes:
+            return root_text
+
+        def _has_glob(s: str) -> bool:
+            return any(ch in s for ch in ["*", "?", "["])
+
+        def _bad_path(s: str) -> bool:
+            return s.startswith("/") or s.startswith("\\") or ".." in PurePosixPath(s).parts
+
+        names = [n for n in z.namelist() if not n.endswith("/")]
+        merged_scenes: list[object] = []
+        base_scenes = raw.get("scenes", [])
+        if base_scenes is None:
+            base_scenes = []
+        if not isinstance(base_scenes, list):
+            raise ValueError("pack: scenes.yaml root.scenes must be a list")
+        merged_scenes.extend(base_scenes)
+
+        for i, inc in enumerate(includes):
+            if not isinstance(inc, str):
+                raise ValueError(f"pack: includes[{i}] must be a string")
+            pat = inc.strip()
+            if not pat:
+                raise ValueError(f"pack: includes[{i}] must be a non-empty string")
+            if _bad_path(pat):
+                raise ValueError(f"pack: illegal include path: {pat}")
+
+            if _has_glob(pat):
+                matches = sorted([n for n in names if fnmatch.fnmatch(n, pat)])
+                if not matches:
+                    raise ValueError(f"pack: includes[{i}] matched no files: {pat}")
+            else:
+                matches = [pat]
+                if pat not in names:
+                    raise ValueError(f"pack: include not found: {pat}")
+
+            for p in matches:
+                if _bad_path(p):
+                    raise ValueError(f"pack: illegal include path: {p}")
+                try:
+                    inc_text = z.read(p).decode("utf-8")
+                except KeyError as e:
+                    raise ValueError(f"pack: include not found: {p}") from e
+                try:
+                    inc_raw = yaml.safe_load(inc_text)
+                except Exception as e:  # noqa: BLE001
+                    raise ValueError(f"pack: include YAML parse error in {p}: {e}") from e
+
+                if isinstance(inc_raw, dict) and "scenes" in inc_raw:
+                    inc_scenes = inc_raw["scenes"]
+                else:
+                    inc_scenes = inc_raw
+
+                if inc_scenes is None:
+                    continue
+                if not isinstance(inc_scenes, list):
+                    raise ValueError(f"pack: included scenes in {p} must be a list")
+                merged_scenes.extend(inc_scenes)
+
+        raw2 = dict(raw)
+        raw2["scenes"] = merged_scenes
+        raw2.pop("includes", None)
+
+        # Deterministic dump (insertion order preserved).
+        return yaml.safe_dump(raw2, sort_keys=False, allow_unicode=True)
+
+
 def _is_hex_sha256(s: str) -> bool:
     if len(s) != 64:
         return False

@@ -26,7 +26,7 @@ from .pack import (
     build_pack,
     pack_summary,
     read_pack_manifest,
-    read_pack_scenes_text,
+    read_pack_story_text,
     unpack_pack,
     verify_pack,
 )
@@ -79,7 +79,7 @@ def _load_story_from_source(scenes_path: str, pack_path: str, story_name: str) -
         return text, load_story(p)
 
     if pack_path:
-        text = read_pack_scenes_text(Path(pack_path))
+        text = read_pack_story_text(Path(pack_path))
         return text, load_story_text(text, source=f"pack:{pack_path}")
 
     if story_name:
