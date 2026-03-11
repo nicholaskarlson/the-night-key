@@ -7,7 +7,7 @@ from btg.engine import load_story
 
 def test_choice_flag_aliases_set_flags_clear_flags(tmp_path: Path) -> None:
     # Author-facing aliases should be accepted for non-programmer friendliness.
-    yml = '''
+    yml = """
 schema_version: 1
 title: "Alias Test"
 start: s1
@@ -23,7 +23,7 @@ scenes:
   - id: s2
     terminal: true
     text: "end"
-'''
+"""
     p = tmp_path / "scenes.yaml"
     p.write_text(yml, encoding="utf-8")
 

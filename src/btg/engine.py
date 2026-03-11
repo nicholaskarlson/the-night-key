@@ -181,9 +181,7 @@ def load_story_text(text: str, source: str | None = None) -> Story:
             _raw_clears = c.get("clears_flags", None)
             if _raw_clears is None:
                 _raw_clears = c.get("clear_flags", [])
-            clears_flags = tuple(
-                _as_str_list(_raw_clears, field="clears_flags", ctx=cctx)
-            )
+            clears_flags = tuple(_as_str_list(_raw_clears, field="clears_flags", ctx=cctx))
 
             choices.append(
                 Choice(
