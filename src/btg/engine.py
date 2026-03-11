@@ -44,6 +44,37 @@ def _format_yaml_error(err: Exception, text: str, source: str | None) -> str:
 
 _STATE_FIELDS: set[str] = {"day", "energy", "support", "guilt", "warmth"}
 
+_TEMPLATE_KEYS: set[str] = {"day", "energy", "support", "guilt", "warmth", "flags"}
+_TEMPLATE_TOKEN = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def render_text(text: str, state: GameState) -> str:
+    """Render tiny templates inside scene text.
+
+    Supported placeholders:
+      {day} {energy} {support} {guilt} {warmth} {flags}
+
+    Use '{{' and '}}' to escape literal braces.
+    """
+    if "{" not in text and "}" not in text:
+        return text
+
+    # Preserve escaped braces first.
+    s = text.replace("{{", "\x00").replace("}}", "\x01")
+
+    def _repl(m: re.Match[str]) -> str:
+        key = m.group(1)
+        if key not in _TEMPLATE_KEYS:
+            return m.group(0)  # leave unknown placeholders unchanged
+        if key == "flags":
+            on = sorted(k for k, v in state.flags.items() if v)
+            return ", ".join(on) if on else "(none)"
+        val = getattr(state, key, None)
+        return str(val) if val is not None else m.group(0)
+
+    s = _TEMPLATE_TOKEN.sub(_repl, s)
+    return s.replace("\x00", "{").replace("\x01", "}")
+
 
 @dataclass(frozen=True)
 class StateGate:
@@ -384,7 +415,7 @@ def apply_choice(
     """
     scene = scenes[cur]
     transcript: list[str] = [f"[{scene.scene_id}]"]
-    transcript.extend(scene.text.splitlines())
+    transcript.extend(render_text(scene.text, state).splitlines())
 
     if scene.terminal:
         transcript.append("[end]")
@@ -412,14 +443,18 @@ def run(
     choose: ChoiceProvider,
     max_steps: int = 200,
 ) -> tuple[GameState, list[TranscriptLine]]:
-    st = state or GameState()
+    st: GameState
+    if state is None:
+        st = GameState()
+    else:
+        st = state
     cur = start
     transcript: list[TranscriptLine] = []
 
     for _ in range(max_steps):
         scene = scenes[cur]
         transcript.append(f"[{scene.scene_id}]")
-        transcript.extend(scene.text.splitlines())
+        transcript.extend(render_text(scene.text, st).splitlines())
 
         if scene.terminal:
             transcript.append("[end]")
@@ -431,7 +466,7 @@ def run(
 
         play_scene = Scene(
             scene_id=scene.scene_id,
-            text=scene.text,
+            text=render_text(scene.text, st),
             choices=available,
             terminal=False,
         )
