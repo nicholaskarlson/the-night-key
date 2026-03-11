@@ -23,10 +23,10 @@ Each choice has:
 - `goto` (scene id to transition to)
 - optional `delta` (changes to the player state)
 - optional flag changes (`sets_flags`, `clears_flags`)
-
-Note: For compatibility, `set_flags` and `clear_flags` are also accepted as aliases.
+  - Compatibility: `set_flags` and `clear_flags` are accepted as aliases.
 - optional `requires_flags` / `forbids_flags` (gates visibility)
 - optional numeric state gates (`requires_state`, `forbids_state`) for `day`, `energy`, `support`, `guilt`, `warmth`
+- optional numeric state deltas in `delta` for the same five fields
 
 ## Numeric state gating (new)
 
@@ -86,6 +86,31 @@ btg play --story my_story
 # or:
 btg play --scenes stories/my_story/scenes.yaml
 ```
+
+## Text templating (new)
+
+Scene text supports tiny, deterministic templates. You can reference the current state values directly in the prose:
+
+- `{day}`
+- `{energy}`
+- `{support}`
+- `{guilt}`
+- `{warmth}`
+- `{flags}` (sorted list of active flags, or `(none)`)
+
+Example:
+
+```yaml
+- id: status_check
+  text: >
+    You check the meter. Energy={energy}. Day={day}.
+    Flags now: {flags}
+  choices:
+    - label: "Continue."
+      goto: next_scene
+```
+
+To include literal braces in text, escape them as `{{` and `}}`.
 
 ## Minimal example
 

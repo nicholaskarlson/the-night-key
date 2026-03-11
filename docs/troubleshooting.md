@@ -42,3 +42,11 @@ If `btg` isn’t found, run it through the venv:
 ```powershell
 .\.venv\Scripts\btg play
 ```
+
+## Text templating
+
+Scene text supports placeholders like `{energy}` and `{flags}`.
+
+- If you see a `TEMPLATE_UNKNOWN` warning, you used a placeholder name the engine doesn’t recognize.
+- If you see a `TEMPLATE_MALFORMED` error, you likely have an unmatched `{` or `}`.
+  Use `{{` and `}}` to include literal braces.

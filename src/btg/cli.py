@@ -8,7 +8,16 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
-from .engine import Scene, Story, apply_choice, available_choices, load_story, load_story_text, run
+from .engine import (
+    Scene,
+    Story,
+    apply_choice,
+    available_choices,
+    load_story,
+    load_story_text,
+    render_text,
+    run,
+)
 from .init_story import init_story
 from .lint import has_errors, lint_story
 from .pack import (
@@ -129,11 +138,11 @@ def _interactive_play(
     while True:
         scene = scenes[cur]
         console.print()
-        console.print(Panel.fit(scene.text, title=scene.scene_id))
+        console.print(Panel.fit(render_text(scene.text, st), title=scene.scene_id))
 
         if scene.terminal:
             transcript_lines.append(f"[{scene.scene_id}]")
-            transcript_lines.extend(scene.text.splitlines())
+            transcript_lines.extend(render_text(scene.text, st).splitlines())
             transcript_lines.append("[end]")
             break
 
@@ -378,7 +387,7 @@ def main(argv: list[str] | None = None) -> int:
 
             def choose(scene: Scene, state: GameState) -> int:
                 console.print()
-                console.print(Panel.fit(scene.text, title=scene.scene_id))
+                console.print(Panel.fit(render_text(scene.text, state), title=scene.scene_id))
                 avail = available_choices(scene, state)
                 for i, ch in enumerate(avail, start=1):
                     console.print(f"  {i}. {ch.label}")

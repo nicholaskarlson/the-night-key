@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Literal
 
@@ -14,6 +15,10 @@ class Issue:
     severity: Severity
     code: str
     message: str
+
+
+_TEMPLATE_ALLOWED: set[str] = {"day", "energy", "support", "guilt", "warmth", "flags"}
+_TEMPLATE_TOKEN = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
 
 
 def _choice_visible(choice: Choice, state: GameState) -> bool:
@@ -138,6 +143,42 @@ def lint_story(story: Story) -> list[Issue]:
                 message="No terminal scenes reachable from start (ignoring conditions).",
             )
         )
+
+    # Tiny text templating checks (book-friendly guardrails)
+    for sid, scene in story.scenes.items():
+        raw = scene.text
+
+        # Ignore escaped braces.
+        s = raw.replace("{{", "").replace("}}", "")
+
+        names = _TEMPLATE_TOKEN.findall(s)
+        unknown = sorted({n for n in names if n not in _TEMPLATE_ALLOWED})
+        for n in unknown:
+            issues.append(
+                Issue(
+                    severity="warning",
+                    code="TEMPLATE_UNKNOWN",
+                    message=(
+                        f"Scene '{sid}' uses unknown template '{{{n}}}' in text. "
+                        "Allowed: {day},{energy},{support},{guilt},{warmth},{flags}. "
+                        "Use '{{' and '}}' for literal braces."
+                    ),
+                )
+            )
+
+        # Remove all valid-looking placeholders; if braces remain, it's malformed.
+        s2 = _TEMPLATE_TOKEN.sub("", s)
+        if "{" in s2 or "}" in s2:
+            issues.append(
+                Issue(
+                    severity="error",
+                    code="TEMPLATE_MALFORMED",
+                    message=(
+                        f"Scene '{sid}' has malformed template braces in text. "
+                        "Use '{{' and '}}' for literal braces."
+                    ),
+                )
+            )
 
     return issues
 
