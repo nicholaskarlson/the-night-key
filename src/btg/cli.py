@@ -16,7 +16,6 @@ from .engine import (
     load_story,
     load_story_text,
     render_text,
-    run,
 )
 from .init_story import init_story
 from .lint import has_errors, lint_story
@@ -210,6 +209,13 @@ def main(argv: list[str] | None = None) -> int:
     play.add_argument("--scenes", default="", help="Path to scenes.yaml.")
     play.add_argument("--pack", default="", help="Path to a story pack zip.")
     play.add_argument("--story", default="", help="Story name under stories/ (e.g., starter).")
+    play.add_argument(
+        "scenes_path",
+        nargs="?",
+        default="",
+        help="Optional path to scenes.yaml (positional).",
+    )
+
     play.add_argument("--start", default="", help="Start scene id override.")
     play.add_argument("--save", default="", help="Optional autosave JSON path.")
 
@@ -225,6 +231,13 @@ def main(argv: list[str] | None = None) -> int:
     lint.add_argument("--pack", default="", help="Path to a story pack zip.")
     lint.add_argument("--story", default="", help="Story name under stories/ (e.g., starter).")
     lint.add_argument(
+        "scenes_path",
+        nargs="?",
+        default="",
+        help="Optional path to scenes.yaml (positional).",
+    )
+
+    lint.add_argument(
         "--strict", action="store_true", help="Treat warnings as errors (non-zero exit)."
     )
 
@@ -235,6 +248,13 @@ def main(argv: list[str] | None = None) -> int:
     replay.add_argument("--scenes", default="", help="Path to scenes.yaml.")
     replay.add_argument("--pack", default="", help="Path to a story pack zip.")
     replay.add_argument("--story", default="", help="Story name under stories/ (e.g., starter).")
+    replay.add_argument(
+        "scenes_path",
+        nargs="?",
+        default="",
+        help="Optional path to scenes.yaml (positional).",
+    )
+
     replay.add_argument("--start", default="", help="Start scene id override (optional).")
     replay.add_argument("--out", default="", help="Optional path to write transcript.")
     replay.add_argument(
@@ -375,7 +395,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "play":
         try:
-            story_text, story = _load_story_from_source(args.scenes, args.pack, args.story)
+            scenes_arg = args.scenes.strip() or args.scenes_path.strip()
+            story_text, story = _load_story_from_source(scenes_arg, args.pack, args.story)
         except Exception as e:  # noqa: BLE001
             console.print(f"[red]ERROR[/red] {e}")
             return 2
@@ -383,22 +404,13 @@ def main(argv: list[str] | None = None) -> int:
         start = args.start.strip() or story.start
         save_path = Path(args.save) if args.save.strip() else None
 
-        if save_path is None:
-
-            def choose(scene: Scene, state: GameState) -> int:
-                console.print()
-                console.print(Panel.fit(render_text(scene.text, state), title=scene.scene_id))
-                avail = available_choices(scene, state)
-                for i, ch in enumerate(avail, start=1):
-                    console.print(f"  {i}. {ch.label}")
-                return _prompt_choice(console, len(avail))
-
-            st1, _ = run(story.scenes, start, GameState(), choose, max_steps=400)
-            _print_state(console, st1, "Final State")
-            return 0
-
+        # Always use the interactive loop so terminal scene text is printed even without --save.
         return _interactive_play(
-            console, story.scenes, start=start, story_text=story_text, save_path=save_path
+            console,
+            story.scenes,
+            start=start,
+            story_text=story_text,
+            save_path=save_path,
         )
 
     if args.cmd == "resume":
@@ -440,7 +452,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "lint":
         try:
-            _story_text, story = _load_story_from_source(args.scenes, args.pack, args.story)
+            scenes_arg = args.scenes.strip() or args.scenes_path.strip()
+            _story_text, story = _load_story_from_source(scenes_arg, args.pack, args.story)
         except Exception as e:  # noqa: BLE001
             console.print(f"[red]ERROR[/red] {e}")
             return 2
@@ -466,7 +479,8 @@ def main(argv: list[str] | None = None) -> int:
         script = parse_script_file(Path(args.script))
 
         try:
-            story_text, _story = _load_story_from_source(args.scenes, args.pack, args.story)
+            scenes_arg = args.scenes.strip() or args.scenes_path.strip()
+            story_text, _story = _load_story_from_source(scenes_arg, args.pack, args.story)
         except Exception as e:  # noqa: BLE001
             console.print(f"[red]ERROR[/red] {e}")
             return 2
