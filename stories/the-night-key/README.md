@@ -1,36 +1,20 @@
-# The Night Key (Anchor Story)
+# The Night Key (anchor story)
 
-This folder contains the anchor interactive-fiction story used throughout the book *The Night Key*.
+This folder contains the anchor interactive-fiction story for the book *The Night Key*.
 
-- Story file: `scenes.yaml`
-- Play it: `btg play --story the-night-key`
-- Lint it (proof-first): `btg lint --strict --story the-night-key`
+## Quick play
 
-## What this story is (and isn’t)
-
-This is not a demo snippet. It’s a growing, book-length example that will expand chapter by chapter:
-- more scenes
-- more flags and conditional choices
-- multiple endings
-- replay scripts and deterministic transcripts
-- deterministic story packs for sharing
-
-## Quick commands
+From the repo root:
 
 ```bash
-# from repo root
 btg play --story the-night-key
-btg lint --strict --story the-night-key
-
-# optional: use the helper scripts
-./scripts/check_night_key.sh
-# or on Windows:
-# powershell -NoProfile -ExecutionPolicy Bypass -File scripts/check_night_key.ps1
 ```
 
-## Proof-first checkpoint
+## File layout (multi-file)
 
-Before you share changes:
-1) `btg lint --strict --story the-night-key`
-2) `pytest -q`
-3) Commit with a clear message describing the narrative/structural change.
+This story uses **multi-file scenes** via `includes:`:
+
+- `scenes.yaml` — entrypoint (metadata + flags + start + includes list)
+- `scenes/act1.yaml` — the current scene content (Act 1 seed)
+
+Splitting scenes keeps the project approachable as it grows. The engine merges included files deterministically.
