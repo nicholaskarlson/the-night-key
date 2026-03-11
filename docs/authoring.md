@@ -24,8 +24,41 @@ Each choice has:
 - optional `delta` (changes to the player state)
 - optional flag changes (`sets_flags`, `clears_flags`)
 
-Note: For compatibility, `sets_flags` and `clears_flags` are also accepted as aliases.
+Note: For compatibility, `set_flags` and `clear_flags` are also accepted as aliases.
 - optional `requires_flags` / `forbids_flags` (gates visibility)
+- optional numeric state gates (`requires_state`, `forbids_state`) for `day`, `energy`, `support`, `guilt`, `warmth`
+
+## Numeric state gating (new)
+
+In addition to flag gating, a choice can be gated on the five numeric state fields:
+
+- `day`
+- `energy`
+- `support`
+- `guilt`
+- `warmth`
+
+Use `requires_state` to **require** comparisons to be true, and `forbids_state` to **hide** a choice when a comparison is true.
+
+Example:
+
+```yaml
+choices:
+  - label: "Keep searching the floor."
+    goto: hallway_search
+    requires_state:
+      energy: ">= 3"
+      guilt: "<= 4"
+
+  - label: "Sit down. You're shaking."
+    goto: take_a_breath
+    forbids_state:
+      warmth: "< 2"
+```
+
+Supported operators: `>=` `<=` `>` `<` `==` `!=`
+
+Tip: This feature is meant to avoid “threshold flags” like `too_tired`. You can gate directly on `energy` instead.
 
 ## Create a new story
 
